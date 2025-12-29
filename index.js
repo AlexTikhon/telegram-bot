@@ -1,17 +1,23 @@
 // bot.js
-const TelegramBot = require('node-telegram-bot-api');
+import TelegramBot from "node-telegram-bot-api";
+import { gameOptions, againOptions } from "./options.js";
+import { askAI } from "./ai.js";
+import "dotenv/config";
 
-const { gameOptions, againOptions } = require('./options');
-const { token } = require('./env');
+const token = process.env.TELEGRAM_BOT_TOKEN;
+if (!token) {
+  throw new Error("TELEGRAM_BOT_TOKEN is missing in .env");
+}
 
 const bot = new TelegramBot(token, { polling: true });
 
 bot.setMyCommands([
-  { command: '/start', description: 'Start the bot' },
-  { command: '/info', description: 'Get information about yourself' },
-  { command: '/game', description: 'Play a game - find a number' },
+  { command: "/start", description: "Запустить бота" },
+  { command: "/info", description: "Получить информацию о себе" },
+  { command: "/game", description: "Играть в угадай число" },
 ]);
 
+// Память для игры
 const chats = {}; // { [chatId]: number }
 
 const startGame = async (chatId) => {
@@ -20,53 +26,68 @@ const startGame = async (chatId) => {
 
   await bot.sendMessage(
     chatId,
-    "Let's play a game! I have selected a number between 0 and 9. Can you guess it?"
+    "Давай сыграем в игру: угадай число от 0 до 9!"
   );
 
-  return bot.sendMessage(chatId, 'Choose a number:', gameOptions);
+  return bot.sendMessage(chatId, "Choose a number:", gameOptions);
 };
 
-bot.on('message', async (msg) => {
+bot.on("message", async (msg) => {
   console.log(msg);
 
   const chatId = msg.chat.id;
   const receivedText = msg.text;
 
-  if (!receivedText) {
-    return;
+  if (!receivedText) return;
+
+  if (receivedText === "/start") {
+    await bot.sendSticker(
+      chatId,
+      "CAACAgIAAxkBAAMTaVF8fmf6BZs2oQi29D5iu3sOW1AAAv8CAAJtsEIDBKA5qzQCNjc2BA"
+    );
+    return bot.sendMessage(chatId, "Добро пожаловать! Как я могу помочь вам сегодня?");
   }
 
-  if (receivedText === '/start') {
-    await bot.sendSticker(chatId, 'CAACAgIAAxkBAAMTaVF8fmf6BZs2oQi29D5iu3sOW1AAAv8CAAJtsEIDBKA5qzQCNjc2BA');
-    return bot.sendMessage(chatId, 'Welcome! How can I assist you today?');
-  }
-
-  if (receivedText === '/game') {
+  if (receivedText === "/game") {
     return startGame(chatId);
   }
 
-  if (receivedText === '/again') {
+  if (receivedText === "/again") {
     return startGame(chatId);
   }
 
-  if (receivedText === '/info') {
+  if (receivedText === "/info") {
     return bot.sendMessage(
       chatId,
-      `Your first name is ${msg.from.first_name}\n` +
-      `Your last name is ${msg.from.last_name || 'not provided'}\n` +
-      `Your username is @${msg.from.username || 'not provided'}`
+      `Ваше имя: ${msg.from.first_name}\n` +
+      `Ваш никнейм: @${msg.from.username || "не указан"}`
     );
   }
 
-  return bot.sendMessage(chatId, `You said: ${receivedText}`);
+  // отправляем в LangChain / OpenAI
+  try {
+    await bot.sendChatAction(chatId, "typing");
+
+    const userName = msg.from?.first_name || msg.from?.username || "друг";
+    const aiReply = await askAI(receivedText, userName);
+
+    return bot.sendMessage(chatId, aiReply);
+  } catch (err) {
+    console.error("AI error:", err);
+    return bot.sendMessage(
+      chatId,
+      "Что-то пошло не так с ИИ. Попробуй ещё раз чуть позже 🙈"
+    );
+  }
 });
 
-bot.on('callback_query', async (callbackQuery) => {
+// Игра — обработчик inline-кнопок
+bot.on("callback_query", async (callbackQuery) => {
   const message = callbackQuery.message;
   const chatId = message.chat.id;
   const data = callbackQuery.data;
 
-  if (data === 'again') {
+  if (data === "again") {
     await bot.answerCallbackQuery(callbackQuery.id);
     return startGame(chatId);
   }
@@ -78,15 +99,15 @@ bot.on('callback_query', async (callbackQuery) => {
     await bot.answerCallbackQuery(callbackQuery.id);
     return bot.sendMessage(
       chatId,
-      'I have not selected a number yet. Send /game to start a new game 🙂'
+      "Я еще не выбрал число. Отправь /game, чтобы начать новую игру 🙂"
     );
   }
 
   let text;
   if (userGuess === correctNumber) {
-    text = `🎉 Congratulations! You guessed the correct number: ${correctNumber}`;
+    text = `🎉 Поздравляю! Вы угадали правильное число: ${correctNumber}`;
   } else {
-    text = `😔 Sorry, the correct number was ${correctNumber}. Better luck next time!`;
+    text = `😔 К сожалению, правильное число было ${correctNumber}. Удачи в следующий раз!`;
   }
 
   delete chats[chatId];
@@ -95,4 +116,4 @@ bot.on('callback_query', async (callbackQuery) => {
   await bot.sendMessage(chatId, text, againOptions);
 });
 
-console.log('Bot is running…');
+console.log("Bot is running…");
