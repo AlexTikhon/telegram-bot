@@ -3,6 +3,8 @@ import TelegramBot from "node-telegram-bot-api";
 import { gameOptions, againOptions } from "./options.js";
 import { askAI } from "./ai.js";
 import "dotenv/config";
+import { getWeather3Days } from "./weather.js";
+import { getLatestRussianSpaceNews } from "./news.js";
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
 if (!token) {
@@ -15,10 +17,13 @@ bot.setMyCommands([
   { command: "/start", description: "Запустить бота" },
   { command: "/info", description: "Получить информацию о себе" },
   { command: "/game", description: "Играть в угадай число" },
+  { command: "/weather", description: "Погода на 3 дня" },
+  { command: "/news", description: "Узнать что-то новое из науки/космоса" },
 ]);
 
 // Память для игры
 const chats = {}; // { [chatId]: number }
+const waitingWeatherCity = {}; // { [chatId]: true | undefined }
 
 const startGame = async (chatId) => {
   const randomNumber = Math.floor(Math.random() * 10);
@@ -40,12 +45,35 @@ bot.on("message", async (msg) => {
 
   if (!receivedText) return;
 
+  // 1. Если ранее попросили ввести город — обрабатываем как запрос погоды
+  if (waitingWeatherCity[chatId] && !receivedText.startsWith("/")) {
+    const cityName = receivedText.trim();
+    waitingWeatherCity[chatId] = false;
+
+    try {
+      await bot.sendChatAction(chatId, "typing");
+      const weatherText = await getWeather3Days(cityName);
+      return bot.sendMessage(chatId, weatherText, { parse_mode: "Markdown" });
+    } catch (err) {
+      console.error("Weather error:", err);
+      return bot.sendMessage(
+        chatId,
+        "Не получилось получить погоду 😔 Попробуй указать город иначе, например: *Warsaw* или *Barcelona*.",
+        { parse_mode: "Markdown" }
+      );
+    }
+  }
+
+  // 2. Команды
   if (receivedText === "/start") {
     await bot.sendSticker(
       chatId,
       "CAACAgIAAxkBAAMTaVF8fmf6BZs2oQi29D5iu3sOW1AAAv8CAAJtsEIDBKA5qzQCNjc2BA"
     );
-    return bot.sendMessage(chatId, "Добро пожаловать! Как я могу помочь вам сегодня?");
+    return bot.sendMessage(
+      chatId,
+      "Добро пожаловать! Как я могу помочь вам сегодня?"
+    );
   }
 
   if (receivedText === "/game") {
@@ -64,7 +92,32 @@ bot.on("message", async (msg) => {
     );
   }
 
-  // отправляем в LangChain / OpenAI
+  if (receivedText === "/weather") {
+    waitingWeatherCity[chatId] = true;
+    return bot.sendMessage(
+      chatId,
+      "Для какого города показать погоду на ближайшие 3 дня?\n\nНапример: *Warsaw* или *Barcelona*",
+      { parse_mode: "Markdown" }
+    );
+  }
+
+  if (receivedText === "/news") {
+    try {
+      await bot.sendChatAction(chatId, "typing");
+
+      const text = await getLatestRussianSpaceNews(3);
+
+      return bot.sendMessage(chatId, text, { parse_mode: "Markdown" });
+    } catch (err) {
+      console.error("News error:", err);
+      return bot.sendMessage(
+        chatId,
+        "Не получилось получить русскоязычные новости 😔 Попробуй позже."
+      );
+    }
+  }
+
+  // 3. Всё остальное — в ИИ
   try {
     await bot.sendChatAction(chatId, "typing");
 
