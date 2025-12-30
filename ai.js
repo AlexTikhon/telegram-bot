@@ -7,7 +7,7 @@ if (!process.env.OPENAI_API_KEY) {
   throw new Error("OPENAI_API_KEY is missing in .env");
 }
 
-// Модель (можно заменить на gpt-4.1, если есть доступ)
+// Модель
 const model = new ChatOpenAI({
   modelName: "gpt-4.1-mini",
   temperature: 0.7,
@@ -51,4 +51,39 @@ export async function askAI(message, userName = "пользователь") {
   }
 
   return text;
+}
+
+// промпт для сжатия гороскопа
+const summarizePrompt = ChatPromptTemplate.fromMessages([
+  [
+    "system",
+    `
+Ты делаешь краткий пересказ гороскопов.
+Отвечай по-русски, 3–5 предложений, без воды, без клише, без перечисления домов и планет.
+Говори как дружелюбный человек, а не как эзотерический гуру.
+    `.trim(),
+  ],
+  [
+    "human",
+    "Вот текст гороскопа. Сожми его в короткий прогноз на сегодня:\n\n{text}",
+  ],
+]);
+
+export async function summarizeHoroscope(text) {
+  const chain = summarizePrompt.pipe(model);
+
+  const res = await chain.invoke({ text });
+
+  let out;
+  if (typeof res.content === "string") {
+    out = res.content;
+  } else if (Array.isArray(res.content)) {
+    out = res.content
+      .map((chunk) => (typeof chunk.text === "string" ? chunk.text : ""))
+      .join("");
+  } else {
+    out = "Не смог кратко пересказать гороскоп 😅";
+  }
+
+  return out.trim();
 }
