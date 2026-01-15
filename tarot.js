@@ -1,4 +1,3 @@
-// ==== 1. СТАРШИЕ АРКАНЫ (22 карт) ====
 const majorArcana = [
   {
     name: "Шут",
@@ -112,9 +111,7 @@ const majorArcana = [
   }
 ];
 
-// ==== 2. МЛАДШИЕ АРКАНЫ (56 карт), генерируем программно ====
 
-// Темы по мастям
 const suits = [
   {
     name: "Жезлов",
@@ -138,7 +135,7 @@ const suits = [
   }
 ];
 
-// Шаблоны по рангам (1–10 + court)
+
 const rankPatterns = [
   {
     name: "Туз",
@@ -226,10 +223,7 @@ function buildMinorArcana() {
   return cards;
 }
 
-// Полная колода: 22 Старших + 56 Младших = 78 карт
 const tarotDeck = [...majorArcana, ...buildMinorArcana()];
-
-// ==== 3. ДЕТЕРМИНИРОВАННЫЙ РАНДОМ И РАСКЛАД ====
 
 function seededRandom(seed) {
   let x = Math.sin(seed) * 10000;
@@ -255,13 +249,12 @@ function getShuffledIndices(seed) {
   return indices;
 }
 
-// Главная функция: три карты на день для конкретного chatId
 export function getDailyTarotSpread(chatId) {
-  const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+  const today = new Date().toISOString().split("T")[0];
   const seed = hash(String(chatId) + ":" + today);
 
   const indices = getShuffledIndices(seed);
-  const chosen = indices.slice(0, 3); // три карты
+  const chosen = indices.slice(0, 3);
 
   const cards = chosen.map((idx, i) => {
     const card = tarotDeck[idx];

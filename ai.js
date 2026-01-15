@@ -1,4 +1,3 @@
-// ai.js
 import { ChatOpenAI } from "@langchain/openai";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import "dotenv/config";
@@ -7,13 +6,11 @@ if (!process.env.OPENAI_API_KEY) {
   throw new Error("OPENAI_API_KEY is missing in .env");
 }
 
-// Модель
 const model = new ChatOpenAI({
   modelName: "gpt-4.1-mini",
   temperature: 0.7,
 });
 
-// Промпт: дружелюбный ассистент, отвечает по-русски
 const prompt = ChatPromptTemplate.fromMessages([
   [
     "system",
@@ -38,7 +35,6 @@ export async function askAI(message, userName = "пользователь") {
     message,
   });
 
-  // res.content может быть строкой или массивом чанкoв
   let text;
   if (typeof res.content === "string") {
     text = res.content;
@@ -53,7 +49,6 @@ export async function askAI(message, userName = "пользователь") {
   return text;
 }
 
-// промпт для сжатия гороскопа
 const summarizePrompt = ChatPromptTemplate.fromMessages([
   [
     "system",

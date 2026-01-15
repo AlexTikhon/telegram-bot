@@ -1,4 +1,3 @@
-// env.js
 require('dotenv').config();
 
 if (!process.env.TELEGRAM_BOT_TOKEN) {

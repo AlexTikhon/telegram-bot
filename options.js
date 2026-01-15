@@ -1,4 +1,3 @@
-// options.js
 export const gameOptions = {
   reply_markup: {
     inline_keyboard: [

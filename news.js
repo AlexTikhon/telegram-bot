@@ -1,7 +1,5 @@
-// news.js
 import { XMLParser } from "fast-xml-parser";
 
-// берём RSS ленту N+1 (наука, технологии, космос и т.д.)
 const RSS_URL = "https://nplus1.ru/rss";
 
 function truncate(text, max = 220) {
@@ -28,7 +26,6 @@ export async function getLatestRussianSpaceNews(limit = 3) {
     throw new Error("Не удалось разобрать RSS новости");
   }
 
-  // берём только первые N
   const news = items.slice(0, limit);
 
   const lines = [];

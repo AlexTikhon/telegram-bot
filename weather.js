@@ -1,4 +1,3 @@
-// weather.js
 const WEATHER_CODE_MAP = {
   0: "☀️ Ясно",
   1: "🌤️ В основном ясно",
@@ -25,7 +24,6 @@ function decodeWeatherCode(code) {
 }
 
 export async function getWeather3Days(cityName) {
-  // 1. Геокодинг: получаем широту/долготу по названию города
   const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(
     cityName
   )}&count=1&language=ru&format=json`;
@@ -44,7 +42,6 @@ export async function getWeather3Days(cityName) {
   const place = geoData.results[0];
   const { latitude, longitude, name, country, timezone } = place;
 
-  // 2. Прогноз на 3 дня
   const forecastUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weathercode&timezone=${encodeURIComponent(
     timezone
   )}&forecast_days=3`;
@@ -61,7 +58,7 @@ export async function getWeather3Days(cityName) {
   lines.push(
     `📍 Погода для *${name}${country ? ", " + country : ""}* на ближайшие 3 дня:`
   );
-  lines.push(""); // пустая строка
+  lines.push("");
 
   const dates = daily.time;
   const tMax = daily.temperature_2m_max;
@@ -78,7 +75,6 @@ export async function getWeather3Days(cityName) {
 
     const emojiText = decodeWeatherCode(code);
 
-    // Дату чуть поприятнее (год-месяц-день → день.месяц)
     const [y, m, d] = date.split("-");
     const prettyDate = `${d}.${m}`;
 
@@ -87,7 +83,7 @@ export async function getWeather3Days(cityName) {
       `Температура: от ${min}°C до ${max}°C\n` +
       `Вероятность осадков: ${rain}%`
     );
-    lines.push(""); // пустая строка между днями
+    lines.push("");
   }
 
   return lines.join("\n");

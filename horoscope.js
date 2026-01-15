@@ -1,8 +1,6 @@
-
 import * as cheerio from "cheerio";
 import { summarizeHoroscope } from "./ai.js";
 
-// Маппинг русский → slug
 const SIGN_SLUGS = {
   "овен": "aries",
   "телец": "taurus",
@@ -40,23 +38,19 @@ export async function getDailyHoroscopeFromWeb(signNameRaw) {
   const html = await res.text();
   const $ = cheerio.load(html);
 
-  // Ищем основной текст статьи — обычно внутри main / article / section.
   let rawText = "";
 
-  // Попробуем взять текст в районе заголовка
   const heading = $("h1, h2")
     .filter((_, el) => $(el).text().includes("Гороскоп на сегодня"))
     .first();
 
   if (heading.length > 0) {
-    // берем следующие параграфы
     rawText = heading
       .nextAll("p")
-      .slice(0, 6) // первые несколько абзацев
+      .slice(0, 6)
       .text();
   }
 
-  // если вдруг не нашли — fallback: весь main
   if (!rawText || rawText.trim().length < 50) {
     rawText = $("main").text();
   }
@@ -67,7 +61,6 @@ export async function getDailyHoroscopeFromWeb(signNameRaw) {
     throw new Error("Не удалось вытащить текст гороскопа — изменилась верстка?");
   }
 
-  // сжимаем через ИИ
   const summary = await summarizeHoroscope(cleaned.slice(0, 4000));
 
   const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD

@@ -1,4 +1,3 @@
-// bot.js
 import TelegramBot from "node-telegram-bot-api";
 import express from "express";
 import { gameOptions, againOptions } from "./options.js";
@@ -14,42 +13,34 @@ if (!token) {
   throw new Error("TELEGRAM_BOT_TOKEN is missing in .env");
 }
 
-// понимаем: мы в облаке Render или локально
 const isRender = !!process.env.RENDER_EXTERNAL_URL;
 
-// создаём бота
 const bot = new TelegramBot(token, {
-  polling: !isRender, // локально — polling, в облаке — нет
+  polling: !isRender,
 });
-
-// ------- HTTP-сервер для webhook (Render) -------
 
 if (isRender) {
   const app = express();
   app.use(express.json());
 
-  const externalUrl = process.env.RENDER_EXTERNAL_URL; // типа https://my-bot.onrender.com
+  const externalUrl = process.env.RENDER_EXTERNAL_URL;
   const webhookPath = `/webhook/${token}`;
   const webhookUrl = `${externalUrl}${webhookPath}`;
 
-  // на всякий случай: лог
   console.log("Render external URL:", externalUrl);
   console.log("Webhook URL:", webhookUrl);
 
-  // регистрируем webhook у Telegram
   bot.setWebHook(webhookUrl).then(() => {
     console.log("Webhook set successfully");
   }).catch(err => {
     console.error("Error setting webhook:", err);
   });
 
-  // сюда Telegram будет слать обновления
   app.post(webhookPath, (req, res) => {
     bot.processUpdate(req.body);
     res.sendStatus(200);
   });
 
-  // простой healthcheck
   app.get("/", (_, res) => {
     res.send("Bot is running.");
   });
@@ -70,9 +61,8 @@ bot.setMyCommands([
   { command: "/info", description: "Получить информацию о себе" },
 ]);
 
-// Память для игры
-const chats = {}; // { [chatId]: number }
-const waitingWeatherCity = {}; // { [chatId]: true | undefined }
+const chats = {};
+const waitingWeatherCity = {};
 const userZodiac = {};
 
 const zodiacSigns = [
@@ -118,7 +108,6 @@ bot.on("message", async (msg) => {
 
   if (!receivedText) return;
 
-  // 1. Если ранее попросили ввести город — обрабатываем как запрос погоды
   if (waitingWeatherCity[chatId] && !receivedText.startsWith("/")) {
     const cityName = receivedText.trim();
     waitingWeatherCity[chatId] = false;
@@ -137,7 +126,6 @@ bot.on("message", async (msg) => {
     }
   }
 
-  // 2. Команды
   if (receivedText === "/start") {
     await bot.sendSticker(
       chatId,
@@ -167,7 +155,6 @@ bot.on("message", async (msg) => {
     const parts = receivedText.split(/\s+/);
     const maybeSign = parts[1];
 
-    // 1) Если знак явно передан: /horoscope лев
     if (maybeSign) {
       if (!isValidSign(maybeSign)) {
         return bot.sendMessage(
@@ -180,7 +167,6 @@ bot.on("message", async (msg) => {
       }
 
       const normalized = normalizeSign(maybeSign);
-      // запоминаем за пользователем
       userZodiac[chatId] = normalized;
 
       try {
@@ -196,7 +182,6 @@ bot.on("message", async (msg) => {
       }
     }
 
-    // 2) Если знак не передан: /horoscope
     const savedSign = userZodiac[chatId];
 
     if (!savedSign) {
@@ -209,7 +194,6 @@ bot.on("message", async (msg) => {
       );
     }
 
-    // Есть сохранённый знак — используем его
     try {
       await bot.sendChatAction(chatId, "typing");
       const text = await getDailyHoroscopeFromWeb(savedSign);
@@ -264,7 +248,6 @@ bot.on("message", async (msg) => {
     );
   }
 
-  // 3. Всё остальное — в ИИ
   try {
     await bot.sendChatAction(chatId, "typing");
 
@@ -281,7 +264,6 @@ bot.on("message", async (msg) => {
   }
 });
 
-// Игра — обработчик inline-кнопок
 bot.on("callback_query", async (callbackQuery) => {
   const message = callbackQuery.message;
   const chatId = message.chat.id;
