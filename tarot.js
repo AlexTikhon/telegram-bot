@@ -279,3 +279,16 @@ export function getDailyTarotSpread(chatId) {
 
   return lines.join("\n");
 }
+
+export function getDailyTarotHint(chatId) {
+  const today = new Date().toISOString().split("T")[0];
+  const seed = hash(String(chatId) + ":" + today);
+  const indices = getShuffledIndices(seed);
+  const idx = indices[0];
+  const card = tarotDeck[idx];
+  const isReversed = seededRandom(seed + 100) > 0.5;
+  const orientation = isReversed ? "reversed" : "upright";
+  const meaning = isReversed ? card.reversed : card.upright;
+
+  return `🧭 *Tarot hint:* *${card.name}* (${orientation}) - ${meaning}`;
+}

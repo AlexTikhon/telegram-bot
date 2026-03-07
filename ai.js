@@ -11,6 +11,26 @@ const model = new ChatOpenAI({
   temperature: 0.7,
 });
 
+const translationModel = new ChatOpenAI({
+  modelName: "gpt-4.1-mini",
+  temperature: 0.2,
+});
+
+function readTextContent(res, fallbackText) {
+  if (typeof res.content === "string") {
+    return res.content;
+  }
+
+  if (Array.isArray(res.content)) {
+    const merged = res.content
+      .map((chunk) => (typeof chunk.text === "string" ? chunk.text : ""))
+      .join("");
+    return merged || fallbackText;
+  }
+
+  return fallbackText;
+}
+
 const prompt = ChatPromptTemplate.fromMessages([
   [
     "system",
@@ -32,18 +52,7 @@ export async function askAI(message, userName = "user") {
     message,
   });
 
-  let text;
-  if (typeof res.content === "string") {
-    text = res.content;
-  } else if (Array.isArray(res.content)) {
-    text = res.content
-      .map((chunk) => (typeof chunk.text === "string" ? chunk.text : ""))
-      .join("");
-  } else {
-    text = "Looks like I hit a technical hiccup 😅";
-  }
-
-  return text;
+  return readTextContent(res, "Looks like I hit a technical hiccup 😅");
 }
 
 const summarizePrompt = ChatPromptTemplate.fromMessages([
@@ -62,17 +71,31 @@ export async function summarizeHoroscope(text) {
   const chain = summarizePrompt.pipe(model);
 
   const res = await chain.invoke({ text });
+  return readTextContent(res, "Could not summarize the horoscope 😅").trim();
+}
 
-  let out;
-  if (typeof res.content === "string") {
-    out = res.content;
-  } else if (Array.isArray(res.content)) {
-    out = res.content
-      .map((chunk) => (typeof chunk.text === "string" ? chunk.text : ""))
-      .join("");
-  } else {
-    out = "Could not summarize the horoscope 😅";
+const translatePrompt = ChatPromptTemplate.fromMessages([
+  [
+    "system",
+    `
+You translate assistant messages into the target language.
+Preserve markdown, links, emojis, line breaks, command tokens starting with "/", and code spans exactly.
+Return only the translated text.
+    `.trim(),
+  ],
+  ["human", "Target language: {targetLanguage}\n\nText:\n{text}"],
+]);
+
+export async function translateText(text, targetLanguage) {
+  if (!text || !targetLanguage || targetLanguage.toLowerCase() === "en") {
+    return text;
   }
 
-  return out.trim();
+  const chain = translatePrompt.pipe(translationModel);
+  const res = await chain.invoke({
+    targetLanguage,
+    text,
+  });
+
+  return readTextContent(res, text).trim();
 }
