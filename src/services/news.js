@@ -1,5 +1,5 @@
 ﻿import { XMLParser } from "fast-xml-parser";
-import { fetchWithRetry } from "./http.js";
+import { fetchWithRetry } from "../core/http.js";
 
 const RSS_URL = "https://nplus1.ru/rss";
 
@@ -53,3 +53,4 @@ export async function getLatestScienceNews(limit = 3) {
 
   return lines.join("\n");
 }
+

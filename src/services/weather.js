@@ -1,4 +1,4 @@
-﻿import { fetchWithRetry } from "./http.js";
+﻿import { fetchWithRetry } from "../core/http.js";
 
 const WEATHER_CODE_MAP = {
   0: "Clear sky",
@@ -94,3 +94,4 @@ export async function getWeather3Days(cityName) {
 
   return lines.join("\n");
 }
+

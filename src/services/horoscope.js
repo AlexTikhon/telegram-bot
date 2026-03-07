@@ -1,6 +1,6 @@
 ﻿import * as cheerio from "cheerio";
 import { summarizeHoroscope } from "./ai.js";
-import { fetchWithRetry } from "./http.js";
+import { fetchWithRetry } from "../core/http.js";
 
 const SIGN_SLUGS = {
   aries: "aries",
@@ -70,3 +70,4 @@ export async function getDailyHoroscopeFromWeb(signNameRaw) {
 
   return `🔮 *${signNameRaw}* horoscope for *${today}*\n\n${summary}\n\nSource: ${url}`;
 }
+

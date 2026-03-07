@@ -1,14 +1,14 @@
 ﻿import TelegramBot from "node-telegram-bot-api";
 import express from "express";
 import "dotenv/config";
-import { gameOptions, createAgainOptions } from "./options.js";
-import { askAI, translateText } from "./ai.js";
-import { getWeather3Days } from "./weather.js";
-import { getLatestScienceNews } from "./news.js";
-import { getDailyHoroscopeFromWeb } from "./horoscope.js";
-import { getDailyTarotSpread, getDailyTarotHint } from "./tarot.js";
-import { TTLCache } from "./cache.js";
-import { transcribeAudioBuffer } from "./stt.js";
+import { gameOptions, createAgainOptions } from "./bot/options.js";
+import { askAI, translateText } from "./services/ai.js";
+import { getWeather3Days } from "./services/weather.js";
+import { getLatestScienceNews } from "./services/news.js";
+import { getDailyHoroscopeFromWeb } from "./services/horoscope.js";
+import { getDailyTarotSpread, getDailyTarotHint } from "./services/tarot.js";
+import { TTLCache } from "./core/cache.js";
+import { transcribeAudioBuffer } from "./services/speechToText.js";
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
 if (!token) {
@@ -602,3 +602,4 @@ bot.on("callback_query", async (callbackQuery) => {
 });
 
 console.log("Bot is running...");
+
