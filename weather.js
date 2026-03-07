@@ -1,42 +1,47 @@
+﻿import { fetchWithRetry } from "./http.js";
+
 const WEATHER_CODE_MAP = {
-  0: "☀️ Ясно",
-  1: "🌤️ В основном ясно",
-  2: "⛅ Переменная облачность",
-  3: "☁️ Пасмурно",
-  45: "🌫️ Туман",
-  48: "🌫️ Туман с изморозью",
-  51: "🌦️ Лёгкая морось",
-  53: "🌦️ Морось",
-  55: "🌧️ Сильная морось",
-  61: "🌦️ Лёгкий дождь",
-  63: "🌧️ Дождь",
-  65: "🌧️ Ливень",
-  71: "🌨️ Лёгкий снег",
-  73: "🌨️ Снег",
-  75: "❄️ Сильный снег",
-  80: "🌦️ Кратковременный дождь",
-  81: "🌧️ Сильный кратковременный дождь",
-  82: "⛈️ Ливень с грозой",
+  0: "Clear sky",
+  1: "Mainly clear",
+  2: "Partly cloudy",
+  3: "Overcast",
+  45: "Fog",
+  48: "Depositing rime fog",
+  51: "Light drizzle",
+  53: "Drizzle",
+  55: "Heavy drizzle",
+  61: "Light rain",
+  63: "Rain",
+  65: "Heavy rain",
+  71: "Light snow",
+  73: "Snow",
+  75: "Heavy snow",
+  80: "Rain showers",
+  81: "Heavy rain showers",
+  82: "Thunderstorm showers",
 };
 
 function decodeWeatherCode(code) {
-  return WEATHER_CODE_MAP[code] || "🌈 Погода переменчивая";
+  return WEATHER_CODE_MAP[code] || "Changeable weather";
 }
 
 export async function getWeather3Days(cityName) {
   const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(
     cityName
-  )}&count=1&language=ru&format=json`;
+  )}&count=1&language=en&format=json`;
 
-  const geoRes = await fetch(geoUrl);
+  const geoRes = await fetchWithRetry(geoUrl, {
+    timeoutMs: 7000,
+    retries: 2,
+  });
   if (!geoRes.ok) {
-    throw new Error("Ошибка геокодинга");
+    throw new Error("Geocoding request failed");
   }
 
   const geoData = await geoRes.json();
 
   if (!geoData.results || geoData.results.length === 0) {
-    throw new Error("Я не нашёл такой город. Попробуй написать по-другому.");
+    throw new Error("City not found. Try another spelling.");
   }
 
   const place = geoData.results[0];
@@ -46,18 +51,19 @@ export async function getWeather3Days(cityName) {
     timezone
   )}&forecast_days=3`;
 
-  const forecastRes = await fetch(forecastUrl);
+  const forecastRes = await fetchWithRetry(forecastUrl, {
+    timeoutMs: 7000,
+    retries: 2,
+  });
   if (!forecastRes.ok) {
-    throw new Error("Ошибка получения прогноза погоды");
+    throw new Error("Forecast request failed");
   }
 
   const forecastData = await forecastRes.json();
   const daily = forecastData.daily;
 
   const lines = [];
-  lines.push(
-    `📍 Погода для *${name}${country ? ", " + country : ""}* на ближайшие 3 дня:`
-  );
+  lines.push(`📍 *${name}${country ? ", " + country : ""}* weather for the next 3 days:`);
   lines.push("");
 
   const dates = daily.time;
@@ -73,15 +79,15 @@ export async function getWeather3Days(cityName) {
     const rain = rainProb[i];
     const code = codes[i];
 
-    const emojiText = decodeWeatherCode(code);
+    const weatherText = decodeWeatherCode(code);
 
-    const [y, m, d] = date.split("-");
+    const [, m, d] = date.split("-");
     const prettyDate = `${d}.${m}`;
 
     lines.push(
-      `*${prettyDate}* — ${emojiText}\n` +
-      `Температура: от ${min}°C до ${max}°C\n` +
-      `Вероятность осадков: ${rain}%`
+      `*${prettyDate}* - ${weatherText}\n` +
+        `Temperature: ${min}°C to ${max}°C\n` +
+        `Precipitation chance: ${rain}%`
     );
     lines.push("");
   }

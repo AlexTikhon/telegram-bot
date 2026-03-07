@@ -1,23 +1,42 @@
-import * as cheerio from "cheerio";
+﻿import * as cheerio from "cheerio";
 import { summarizeHoroscope } from "./ai.js";
+import { fetchWithRetry } from "./http.js";
 
 const SIGN_SLUGS = {
-  "овен": "aries",
-  "телец": "taurus",
-  "близнецы": "gemini",
-  "рак": "cancer",
-  "лев": "leo",
-  "дева": "virgo",
-  "весы": "libra",
-  "скорпион": "scorpio",
-  "стрелец": "sagittarius",
-  "козерог": "capricorn",
-  "водолей": "aquarius",
-  "рыбы": "pisces",
+  aries: "aries",
+  taurus: "taurus",
+  gemini: "gemini",
+  cancer: "cancer",
+  leo: "leo",
+  virgo: "virgo",
+  libra: "libra",
+  scorpio: "scorpio",
+  sagittarius: "sagittarius",
+  capricorn: "capricorn",
+  aquarius: "aquarius",
+  pisces: "pisces",
 };
 
 function normalizeSignName(name) {
   return name.toLowerCase().trim();
+}
+
+function extractText($) {
+  let rawText = "";
+
+  const heading = $("h1, h2")
+    .filter((_, el) => /today/i.test($(el).text()))
+    .first();
+
+  if (heading.length > 0) {
+    rawText = heading.nextAll("p").slice(0, 6).text();
+  }
+
+  if (!rawText || rawText.trim().length < 50) {
+    rawText = $("article, main").first().text();
+  }
+
+  return rawText.replace(/\s+/g, " ").trim();
 }
 
 export async function getDailyHoroscopeFromWeb(signNameRaw) {
@@ -25,45 +44,29 @@ export async function getDailyHoroscopeFromWeb(signNameRaw) {
   const slug = SIGN_SLUGS[signKey];
 
   if (!slug) {
-    return "Я не узнал такой знак зодиака 🙂\nПопробуй так:\nовен, телец, близнецы, рак, лев, дева, весы, скорпион, стрелец, козерог, водолей, рыбы";
+    return "Unknown zodiac sign 🙂 Try one of: aries, taurus, gemini, cancer, leo, virgo, libra, scorpio, sagittarius, capricorn, aquarius, pisces";
   }
 
   const url = `https://zody.woman.ru/${slug}/today`;
 
-  const res = await fetch(url);
+  const res = await fetchWithRetry(url, {
+    timeoutMs: 9000,
+    retries: 2,
+  });
   if (!res.ok) {
-    throw new Error(`Не удалось получить гороскоп (${res.status})`);
+    throw new Error(`Could not fetch horoscope (${res.status})`);
   }
 
   const html = await res.text();
   const $ = cheerio.load(html);
-
-  let rawText = "";
-
-  const heading = $("h1, h2")
-    .filter((_, el) => $(el).text().includes("Гороскоп на сегодня"))
-    .first();
-
-  if (heading.length > 0) {
-    rawText = heading
-      .nextAll("p")
-      .slice(0, 6)
-      .text();
-  }
-
-  if (!rawText || rawText.trim().length < 50) {
-    rawText = $("main").text();
-  }
-
-  const cleaned = rawText.replace(/\s+/g, " ").trim();
+  const cleaned = extractText($);
 
   if (!cleaned || cleaned.length < 50) {
-    throw new Error("Не удалось вытащить текст гороскопа — изменилась верстка?");
+    throw new Error("Could not extract horoscope text. Source layout may have changed.");
   }
 
   const summary = await summarizeHoroscope(cleaned.slice(0, 4000));
+  const today = new Date().toISOString().split("T")[0];
 
-  const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-
-  return `🔮 Гороскоп для *${signNameRaw}* на *${today}*\n\n${summary}\n\nИсточник: ${url}`;
+  return `🔮 *${signNameRaw}* horoscope for *${today}*\n\n${summary}\n\nSource: ${url}`;
 }

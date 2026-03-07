@@ -1,211 +1,209 @@
-const majorArcana = [
+﻿const majorArcana = [
   {
-    name: "Шут",
-    upright: "новый этап, спонтанность, лёгкость, доверие жизни.",
-    reversed: "импульсивность, неосторожность, риск сделать глупость."
+    name: "The Fool",
+    upright: "new beginnings, spontaneity, curiosity, trust in the process.",
+    reversed: "impulsiveness, risky moves, lack of preparation."
   },
   {
-    name: "Маг",
-    upright: "фокус, воля и ресурсы для действий, можно повлиять на ситуацию.",
-    reversed: "рассеянность, сомнения в себе, риск манипуляций."
+    name: "The Magician",
+    upright: "focus, willpower, and resources to act with intention.",
+    reversed: "scattered energy, self-doubt, or manipulation."
   },
   {
-    name: "Жрица",
-    upright: "интуиция, тишина, наблюдение, стоит сначала почувствовать, а потом делать.",
-    reversed: "игнорирование интуиции, путаница, скрытая информация."
+    name: "The High Priestess",
+    upright: "intuition, reflection, and quiet inner clarity.",
+    reversed: "ignoring intuition, confusion, or hidden facts."
   },
   {
-    name: "Императрица",
-    upright: "забота, творчество, комфорт, хороший день для себя и близких.",
-    reversed: "леность, переизбыток, обида из-за нехватки внимания."
+    name: "The Empress",
+    upright: "care, creativity, comfort, and nurturing energy.",
+    reversed: "overindulgence, stagnation, or unmet emotional needs."
   },
   {
-    name: "Император",
-    upright: "структура, порядок, ответственность, можно навести дисциплину.",
-    reversed: "жёсткость, упрямство, попытка всё контролировать."
+    name: "The Emperor",
+    upright: "structure, responsibility, and practical leadership.",
+    reversed: "rigidity, control issues, or stubbornness."
   },
   {
-    name: "Жрец",
-    upright: "традиции, обучение, совет, опора на опыт и правила.",
-    reversed: "желание пойти против системы, сомнения в чужих авторитетах."
+    name: "The Hierophant",
+    upright: "tradition, learning, guidance, and proven methods.",
+    reversed: "rebellion, resistance to advice, or questioning norms."
   },
   {
-    name: "Влюблённые",
-    upright: "выбор сердцем, гармония, партнёрство, важное решение.",
-    reversed: "колебания, неясность в отношениях или выборе."
+    name: "The Lovers",
+    upright: "alignment, meaningful choice, and honest connection.",
+    reversed: "mixed signals, indecision, or value misalignment."
   },
   {
-    name: "Колесница",
-    upright: "движение вперёд, мотивация, можно продавить задачу силой воли.",
-    reversed: "хаос, поспешность, внутренний разброд."
+    name: "The Chariot",
+    upright: "drive, direction, and momentum through discipline.",
+    reversed: "haste, inner conflict, or loss of direction."
   },
   {
-    name: "Сила",
-    upright: "внутренняя стойкость, мягкая решительность, вы можете больше, чем думаете.",
-    reversed: "усталость, раздражительность, хочется всё бросить."
+    name: "Strength",
+    upright: "inner resilience, calm confidence, and patience.",
+    reversed: "fatigue, frustration, or low self-control."
   },
   {
-    name: "Отшельник",
-    upright: "время для паузы, размышлений, уединения и честного диалога с собой.",
-    reversed: "излишняя замкнутость, чувство одиночества, уход от общения."
+    name: "The Hermit",
+    upright: "pause, introspection, and wise self-reflection.",
+    reversed: "isolation, withdrawal, or avoidance."
   },
   {
-    name: "Колесо Фортуны",
-    upright: "смена обстоятельств, поворот, шанс, удачное совпадение.",
-    reversed: "ощущение зацикленности, как будто всё по кругу."
+    name: "Wheel of Fortune",
+    upright: "turning point, timing, and changing circumstances.",
+    reversed: "feeling stuck in loops or resisting change."
   },
   {
-    name: "Справедливость",
-    upright: "честность, объективный взгляд, день «кармического баланса».",
-    reversed: "перекос, нечестность, нежелание видеть свою долю ответственности."
+    name: "Justice",
+    upright: "fairness, accountability, and objective judgment.",
+    reversed: "bias, denial, or imbalance."
   },
   {
-    name: "Повешенный",
-    upright: "паузa, переоценка, посмотреть на ситуацию под другим углом.",
-    reversed: "застревание, ожидание без смысла, жертва привычки."
+    name: "The Hanged Man",
+    upright: "new perspective, surrender, and strategic pause.",
+    reversed: "stalling, passivity, or unhelpful sacrifice."
   },
   {
-    name: "Смерть",
-    upright: "завершение этапа, естественный конец чего-то старого и место для нового.",
-    reversed: "страх перемен, попытка удержать то, что уже уходит."
+    name: "Death",
+    upright: "ending a chapter and making space for renewal.",
+    reversed: "fear of change or clinging to the past."
   },
   {
-    name: "Умеренность",
-    upright: "спокойный день, баланс, мягкий прогресс маленькими шагами.",
-    reversed: "перебор, крайности, сложно удержать середину."
+    name: "Temperance",
+    upright: "balance, moderation, and steady integration.",
+    reversed: "extremes, impatience, or poor pacing."
   },
   {
-    name: "Дьявол",
-    upright: "соблазны, зависимости, желание «ещё немного удовольствия».",
-    reversed: "осознание, что что-то тянет назад, шанс ослабить хватку привычек."
+    name: "The Devil",
+    upright: "attachments, temptations, and limiting habits.",
+    reversed: "awareness, release, and reclaiming control."
   },
   {
-    name: "Башня",
-    upright: "внезапные изменения, ломка старых конструкций, встряска.",
-    reversed: "затянутая нестабильность, мелкие потрясения вместо одного большого."
+    name: "The Tower",
+    upright: "disruption, breakthrough, and necessary reset.",
+    reversed: "prolonged tension or avoiding inevitable change."
   },
   {
-    name: "Звезда",
-    upright: "надежда, вдохновение, вера в будущее, можно позволить себе мечтать.",
-    reversed: "сомнения, временное разочарование, но потенциал всё равно есть."
+    name: "The Star",
+    upright: "hope, inspiration, healing, and renewed faith.",
+    reversed: "discouragement, doubt, or temporary low morale."
   },
   {
-    name: "Луна",
-    upright: "эмоции, сны, неясность, сильнее обычного работает воображение.",
-    reversed: "тревоги, накручивание себя, иллюзии и домыслы."
+    name: "The Moon",
+    upright: "emotion, uncertainty, and active imagination.",
+    reversed: "anxiety, confusion, or misreading signals."
   },
   {
-    name: "Солнце",
-    upright: "ясность, радость, энергия, хороший день для активности и общения.",
-    reversed: "перегрев, завышенные ожидания или лёгкое выгорание."
+    name: "The Sun",
+    upright: "clarity, joy, vitality, and visible progress.",
+    reversed: "burnout risk, inflated expectations, or delays."
   },
   {
-    name: "Суд",
-    upright: "осознание, выводы, внутренний «суд над прошлым» и шанс обновиться.",
-    reversed: "застревание в старых историях, трудность простить себя или других."
+    name: "Judgement",
+    upright: "awakening, reflection, and conscious reset.",
+    reversed: "self-criticism, avoidance, or unresolved past issues."
   },
   {
-    name: "Мир",
-    upright: "завершение цикла, удовлетворение, ощущение целостности.",
-    reversed: "ощущение, что до полного завершения чего-то чуть-чуть не хватает."
+    name: "The World",
+    upright: "completion, integration, and earned fulfillment.",
+    reversed: "unfinished business or delayed closure."
   }
 ];
-
 
 const suits = [
   {
-    name: "Жезлов",
-    themePos: "энергии, действий, инициатив и целей",
-    themeNeg: "спешки, выгорания и конфликтов из-за активности"
+    name: "Wands",
+    themePos: "energy, initiative, and personal drive",
+    themeNeg: "rush, burnout, and friction from overactivity"
   },
   {
-    name: "Кубков",
-    themePos: "чувств, эмоций, отношений и настроения",
-    themeNeg: "эмоциональных перегибов, обид и иллюзий в чувствах"
+    name: "Cups",
+    themePos: "emotion, relationships, and mood",
+    themeNeg: "emotional swings, sensitivity, and idealization"
   },
   {
-    name: "Мечей",
-    themePos: "мыслей, решений, общения и ясности",
-    themeNeg: "переживаний, конфликтов и излишнего анализа"
+    name: "Swords",
+    themePos: "thoughts, decisions, and communication",
+    themeNeg: "overthinking, stress, and sharp conflict"
   },
   {
-    name: "Пентаклей",
-    themePos: "материальных дел, денег, тела и практических задач",
-    themeNeg: "застоя, страхов за деньги и чрезмерного контроля быта"
+    name: "Pentacles",
+    themePos: "practical work, money, body, and routines",
+    themeNeg: "stagnation, scarcity fears, and overcontrol"
   }
 ];
 
-
 const rankPatterns = [
   {
-    name: "Туз",
-    pos: "новый импульс, начало, шанс и свежая энергия",
-    neg: "упущенный шанс или сомнения начать что-то новое"
+    name: "Ace",
+    pos: "fresh potential, new impulse, and a clean start",
+    neg: "hesitation or a missed opening"
   },
   {
-    name: "2",
-    pos: "первые шаги, планирование, баланс между вариантами",
-    neg: "колебания, невозможность выбрать направление"
+    name: "Two",
+    pos: "early planning, choices, and balancing options",
+    neg: "indecision and unstable priorities"
   },
   {
-    name: "3",
-    pos: "развитие, поддержка, первые результаты и движение вперёд",
-    neg: "расфокус, ожидание, когда всё сделают за вас"
+    name: "Three",
+    pos: "growth, collaboration, and first visible results",
+    neg: "distraction or waiting for others to act"
   },
   {
-    name: "4",
-    pos: "стабильность, опора, закрепление результата",
-    neg: "застой, скука или «слишком уж всё по плану»"
+    name: "Four",
+    pos: "stability, structure, and consolidation",
+    neg: "stagnation or comfort-zone lock"
   },
   {
-    name: "5",
-    pos: "опыт через сложности, возможность чему-то научиться в конфликте",
-    neg: "перебор драматизма, споры ради споров"
+    name: "Five",
+    pos: "learning through friction and adaptation",
+    neg: "drama, conflict cycles, or stubborn tension"
   },
   {
-    name: "6",
-    pos: "движение дальше, улучшение ситуации, выход на более спокойный уровень",
-    neg: "зависание между прошлым и будущим, нежелание что-то отпускать"
+    name: "Six",
+    pos: "gradual improvement and transition",
+    neg: "difficulty letting go of what is over"
   },
   {
-    name: "7",
-    pos: "поиск своего пути, проверка мотивации, эксперименты",
-    neg: "сомнения, самообман или лишняя хитрость"
+    name: "Seven",
+    pos: "strategy, experimentation, and self-check",
+    neg: "self-doubt, mixed motives, or confusion"
   },
   {
-    name: "8",
-    pos: "интенсивность, активность, ускорение процессов",
-    neg: "перегруз, ощущение, что всё происходит слишком быстро"
+    name: "Eight",
+    pos: "momentum, speed, and productive intensity",
+    neg: "overload and pace mismatch"
   },
   {
-    name: "9",
-    pos: "выдержка, настойчивость, способность дотянуть до результата",
-    neg: "усталость, тревожность, риск всё бросить на финише"
+    name: "Nine",
+    pos: "persistence, resilience, and final effort",
+    neg: "fatigue, anxiety, or near-finish burnout"
   },
   {
-    name: "10",
-    pos: "завершение цикла, результат, переход к новому уровню",
-    neg: "перенапряжение, ощущение тяжести или перегруза"
+    name: "Ten",
+    pos: "cycle completion and threshold to next stage",
+    neg: "exhaustion and excessive pressure"
   },
   {
-    name: "Паж",
-    pos: "новости, любопытство, обучение и первые шаги в теме",
-    neg: "инфантильность, поверхностность, отсутствие ответственности"
+    name: "Page",
+    pos: "curiosity, learning, and a message worth noting",
+    neg: "naivety, inconsistency, or low follow-through"
   },
   {
-    name: "Рыцарь",
-    pos: "динамика, активное продвижение, решительность",
-    neg: "импульсивность, поспешные решения"
+    name: "Knight",
+    pos: "action, courage, and strong forward movement",
+    neg: "impulsiveness and rushed decisions"
   },
   {
-    name: "Королева",
-    pos: "зрелое, мягкое, включённое отношение к теме, забота и чувствительность",
-    neg: "пережим — излишний контроль, эмоциональность или тревожность"
+    name: "Queen",
+    pos: "mature care, grounded empathy, and composure",
+    neg: "overcontrol, emotional reactivity, or tension"
   },
   {
-    name: "Король",
-    pos: "взрослая позиция, управление ситуацией, ясное понимание приоритетов",
-    neg: "жёсткость, излишний контроль или холодность"
+    name: "King",
+    pos: "ownership, strategic leadership, and clarity",
+    neg: "rigidity, dominance, or emotional distance"
   }
 ];
 
@@ -214,9 +212,9 @@ function buildMinorArcana() {
   for (const suit of suits) {
     for (const rank of rankPatterns) {
       cards.push({
-        name: `${rank.name} ${suit.name}`,
-        upright: `${rank.pos} в сфере ${suit.themePos}.`,
-        reversed: `${rank.neg} в сфере ${suit.themeNeg}.`
+        name: `${rank.name} of ${suit.name}`,
+        upright: `${rank.pos} in the area of ${suit.themePos}.`,
+        reversed: `${rank.neg} in the area of ${suit.themeNeg}.`
       });
     }
   }
@@ -226,7 +224,7 @@ function buildMinorArcana() {
 const tarotDeck = [...majorArcana, ...buildMinorArcana()];
 
 function seededRandom(seed) {
-  let x = Math.sin(seed) * 10000;
+  const x = Math.sin(seed) * 10000;
   return x - Math.floor(x);
 }
 
@@ -263,22 +261,19 @@ export function getDailyTarotSpread(chatId) {
     return {
       position: i + 1,
       name: card.name,
-      orientation: isReversed ? "перевёрнутая" : "прямая",
+      orientation: isReversed ? "reversed" : "upright",
       meaning: isReversed ? card.reversed : card.upright
     };
   });
 
   const lines = [];
-  lines.push(`🃏 *Таро-расклад на сегодня* (${today})`);
+  lines.push(`🃏 *Daily tarot spread* (${today})`);
   lines.push("");
-  lines.push("_Это развлекательная трактовка, не воспринимай её как жёсткий прогноз судьбы._");
+  lines.push("_This is for reflection and entertainment, not a fixed prediction._");
   lines.push("");
 
   for (const c of cards) {
-    lines.push(
-      `*${c.position}. ${c.name} (${c.orientation})*\n` +
-      `${c.meaning}`
-    );
+    lines.push(`*${c.position}. ${c.name} (${c.orientation})*\n${c.meaning}`);
     lines.push("");
   }
 

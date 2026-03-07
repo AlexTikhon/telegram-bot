@@ -1,4 +1,4 @@
-export const gameOptions = {
+﻿export const gameOptions = {
   reply_markup: {
     inline_keyboard: [
       [
@@ -27,7 +27,7 @@ export const againOptions = {
   reply_markup: {
     inline_keyboard: [
       [
-        { text: "Сыграть снова", callback_data: "again" }
+        { text: "Play again", callback_data: "again" }
       ]
     ]
   }
